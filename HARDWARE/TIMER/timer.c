@@ -52,7 +52,11 @@ void TIM3_IRQHandler(void)
 {
 if(TIM_GetITStatus(TIM3,TIM_IT_Update)==SET) //溢出中断
 {
+    TIM_Cmd(TIM5,DISABLE ); 	//关闭定时器5
+    TIM_Cmd(TIM3,DISABLE ); 	//关闭定时器5	
     TIM3_COUNTER++;
+    TIM_Cmd(TIM5,ENABLE ); 	//关闭定时器5
+    TIM_Cmd(TIM3,ENABLE ); 	//关闭定时器5	
 }
 TIM_ClearITPendingBit(TIM3,TIM_IT_Update); //清除中断标志位
 }
@@ -124,8 +128,10 @@ void TIM5_IRQHandler(void)
 	if(TIM_GetITStatus(TIM5, TIM_IT_CC1) != RESET)//捕获1发生捕获事件
 	{	
 			
-			TIM_Cmd(TIM5,DISABLE ); 	//关闭定时器5	 
-      TIM5_COUNTER++;    
+			TIM_Cmd(TIM5,DISABLE ); 	//关闭定时器5
+      TIM_Cmd(TIM3,DISABLE ); 	//关闭定时器5	 
+      TIM5_COUNTER++; 
+      TIM_Cmd(TIM3,ENABLE ); 	//关闭定时器5	 
 			TIM_Cmd(TIM5,ENABLE ); 	//使能定时器5	    
 	}			     	    					   
  	

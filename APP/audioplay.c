@@ -11,6 +11,7 @@
 #include "exfuns.h"  
 #include "text.h"
 #include "string.h"  
+#include "timer.h"
 //////////////////////////////////////////////////////////////////////////////////	 
 //本程序只供学习使用，未经作者许可，不得用于其它任何用途
 //ALIENTEK STM32F407开发板
@@ -27,7 +28,7 @@
 
 //音乐播放控制器
 __audiodev audiodev;	  
- 
+	u16 curindex;		//图片当前索引 
 
 //开始音频播放
 void audio_start(void)
@@ -115,7 +116,7 @@ void audio_play(void)
 	u8 *fn;   			//长文件名
 	u8 *pname;			//带路径的文件名
 	u16 totwavnum; 		//音乐文件总数
-	u16 curindex;		//图片当前索引
+
 	u8 key;				//键值		  
  	u16 temp;
 	u16 *wavindextbl;	//音乐索引表
@@ -124,20 +125,22 @@ void audio_play(void)
 	WM8978_Input_Cfg(0,0,0);//关闭输入通道
 	WM8978_Output_Cfg(1,0);	//开启DAC输出   
 	
+  
  	while(f_opendir(&wavdir,"0:/MUSIC"))//打开音乐文件夹
- 	{	    
-		Show_Str(60,190,240,16,"MUSIC文件夹错误!",16,0);
-		delay_ms(200);				  
-		LCD_Fill(60,190,240,206,WHITE);//清除显示	     
-		delay_ms(200);				  
+ 	{	  
+      printf("MUSIC文件夹错误!");    
+//		Show_Str(60,190,240,16,"MUSIC文件夹错误!",16,0);
+//		delay_ms(200);				  
+//		LCD_Fill(60,190,240,206,WHITE);//清除显示	     
+//		delay_ms(200);				  
 	} 									  
 	totwavnum=audio_get_tnum("0:/MUSIC"); //得到总有效文件数
   	while(totwavnum==NULL)//音乐文件总数为0		
  	{	    
-		Show_Str(60,190,240,16,"没有音乐文件!",16,0);
-		delay_ms(200);				  
-		LCD_Fill(60,190,240,146,WHITE);//清除显示	     
-		delay_ms(200);				  
+//		Show_Str(60,190,240,16,"没有音乐文件!",16,0);
+//		delay_ms(200);				  
+//		LCD_Fill(60,190,240,146,WHITE);//清除显示	     
+//		delay_ms(200);				  
 	}										   
   	wavfileinfo.lfsize=_MAX_LFN*2+1;						//长文件名最大长度
 	wavfileinfo.lfname=mymalloc(SRAMIN,wavfileinfo.lfsize);	//为长文件缓存区分配内存
@@ -145,10 +148,10 @@ void audio_play(void)
  	wavindextbl=mymalloc(SRAMIN,2*totwavnum);				//申请2*totwavnum个字节的内存,用于存放音乐文件索引
  	while(wavfileinfo.lfname==NULL||pname==NULL||wavindextbl==NULL)//内存分配出错
  	{	    
-		Show_Str(60,190,240,16,"内存分配失败!",16,0);
-		delay_ms(200);				  
-		LCD_Fill(60,190,240,146,WHITE);//清除显示	     
-		delay_ms(200);				  
+//		Show_Str(60,190,240,16,"内存分配失败!",16,0);
+//		delay_ms(200);				  
+//		LCD_Fill(60,190,240,146,WHITE);//清除显示	     
+//		delay_ms(200);				  
 	}  	 
  	//记录索引
     res=f_opendir(&wavdir,"0:/MUSIC"); //打开目录
@@ -171,27 +174,23 @@ void audio_play(void)
 	}   
    	curindex=0;											//从0开始显示
    	res=f_opendir(&wavdir,(const TCHAR*)"0:/MUSIC"); 	//打开目录
+  sta=4;
 	while(res==FR_OK)//打开成功
-	{	
+	{
+    curindex=sta;
 		dir_sdi(&wavdir,wavindextbl[curindex]);			//改变当前目录索引	   
         res=f_readdir(&wavdir,&wavfileinfo);       		//读取目录下的一个文件
         if(res!=FR_OK||wavfileinfo.fname[0]==0)break;	//错误了/到末尾了,退出
      	fn=(u8*)(*wavfileinfo.lfname?wavfileinfo.lfname:wavfileinfo.fname);			 
 		strcpy((char*)pname,"0:/MUSIC/");				//复制路径(目录)
 		strcat((char*)pname,(const char*)fn);  			//将文件名接在后面
- 		LCD_Fill(60,190,240,190+16,WHITE);				//清除之前的显示
-		Show_Str(60,190,240-60,16,fn,16,0);				//显示歌曲名字 
-		audio_index_show(curindex+1,totwavnum);
-		key=audio_play_song(pname); 			 		//播放这个音频文件
-		if(key==KEY2_PRES)		//上一曲
-		{
-			if(curindex)curindex--;
-			else curindex=totwavnum-1;
- 		}else if(key==KEY0_PRES)//下一曲
-		{
-			curindex++;		   	
-			if(curindex>=totwavnum)curindex=0;//到末尾的时候,自动从头开始
- 		}else break;	//产生了错误 	 
+// 		LCD_Fill(60,190,240,190+16,WHITE);				//清除之前的显示
+//		Show_Str(60,190,240-60,16,fn,16,0);				//显示歌曲名字 
+//		audio_index_show(curindex+1,totwavnum);
+		key=wav_play_song(pname); 			 		//播放这个音频文件
+    
+    
+     
 	} 											  
 	myfree(SRAMIN,wavfileinfo.lfname);	//释放内存			    
 	myfree(SRAMIN,pname);				//释放内存			    

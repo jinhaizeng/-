@@ -67,6 +67,30 @@ u8 USART_RX_BUF[USART_REC_LEN];     //接收缓冲,最大USART_REC_LEN个字节.
 //bit13~0，	接收到的有效字节数目
 u16 USART_RX_STA=0;       //接收状态标记	
 
+
+/*********************************************************************************************
+* @brief HMI屏的结束字符发送函数 .
+* @param  无
+*
+* @param
+* @retval void无
+*/
+void end_send (void) {
+	u8 i;
+	for (i = 0; i<4; i++) {
+		USART1->DR = (u8)0XFF;
+		while ((USART1->SR & 0X40) == 0) {};
+	}
+} 
+void end_send2 (void) {
+	u8 i;
+	for (i = 0; i<3; i++) {
+		USART1->DR = (u8)0XFF;
+		while ((USART1->SR & 0X40) == 0) {};
+	}
+}
+
+
 //初始化IO 串口1 
 //bound:波特率
 void uart_init(u32 bound){

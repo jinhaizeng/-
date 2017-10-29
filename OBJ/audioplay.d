@@ -54,3 +54,4 @@
 ..\obj\audioplay.o: ..\TEXT\text.h
 ..\obj\audioplay.o: ..\TEXT\fontupd.h
 ..\obj\audioplay.o: D:\MDK5.12\ARM\ARMCC\Bin\..\include\string.h
+..\obj\audioplay.o: ..\HARDWARE\TIMER\timer.h

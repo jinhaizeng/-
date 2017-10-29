@@ -48,3 +48,4 @@
 ..\obj\wavplay.o: ..\HARDWARE\WM8978\wm8978.h
 ..\obj\wavplay.o: ..\HARDWARE\KEY\key.h
 ..\obj\wavplay.o: ..\HARDWARE\LED\led.h
+..\obj\wavplay.o: ..\HARDWARE\TIMER\timer.h

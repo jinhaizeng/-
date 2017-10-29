@@ -8,6 +8,7 @@
 #include "wm8978.h"
 #include "key.h"
 #include "led.h"
+#include "timer.h"
 //////////////////////////////////////////////////////////////////////////////////	 
 //本程序只供学习使用，未经作者许可，不得用于其它任何用途
 //ALIENTEK STM32F407开发板
@@ -28,6 +29,7 @@
 __wavctrl wavctrl;		//WAV控制结构体
 vu8 wavtransferend=0;	//i2s传输完成标志
 vu8 wavwitchbuf=0;		//i2sbufx指示标志
+u8 sta=0;
  
 //WAV解析初始化
 //fname:文件路径+文件名
@@ -72,14 +74,14 @@ u8 wav_decode_init(u8* fname,__wavctrl* wavx)
 					wavx->datasize=data->ChunkSize;			//数据块大小
 					wavx->datastart=wavx->datastart+8;		//数据流开始的地方. 
 					 
-					printf("wavx->audioformat:%d\r\n",wavx->audioformat);
-					printf("wavx->nchannels:%d\r\n",wavx->nchannels);
-					printf("wavx->samplerate:%d\r\n",wavx->samplerate);
-					printf("wavx->bitrate:%d\r\n",wavx->bitrate);
-					printf("wavx->blockalign:%d\r\n",wavx->blockalign);
-					printf("wavx->bps:%d\r\n",wavx->bps);
-					printf("wavx->datasize:%d\r\n",wavx->datasize);
-					printf("wavx->datastart:%d\r\n",wavx->datastart);  
+//					printf("wavx->audioformat:%d\r\n",wavx->audioformat);
+//					printf("wavx->nchannels:%d\r\n",wavx->nchannels);
+//					printf("wavx->samplerate:%d\r\n",wavx->samplerate);
+//					printf("wavx->bitrate:%d\r\n",wavx->bitrate);
+//					printf("wavx->blockalign:%d\r\n",wavx->blockalign);
+//					printf("wavx->bps:%d\r\n",wavx->bps);
+//					printf("wavx->datasize:%d\r\n",wavx->datasize);
+//					printf("wavx->datastart:%d\r\n",wavx->datastart);  
 				}else res=3;//data区域未找到.
 			}else res=2;//非wav文件
 			
@@ -172,6 +174,9 @@ void wav_get_curtime(FIL*fx,__wavctrl *wavx)
 u8 wav_play_song(u8* fname)
 {
 	u8 key;
+  u32 time;
+  u8 flag=0;
+  u32 fre;
 	u8 t=0; 
 	u8 res;  
 	u32 fillnum; 
@@ -217,24 +222,88 @@ u8 wav_play_song(u8* fname)
 					else fillnum=wav_buffill(audiodev.i2sbuf1,WAV_I2S_TX_DMA_BUFSIZE,wavctrl.bps);//填充buf1
 					while(1)
 					{
-						key=KEY_Scan(0); 
-						if(key==WKUP_PRES)//暂停
-						{
-							if(audiodev.status&0X01)audiodev.status&=~(1<<0);
-							else audiodev.status|=0X01;  
-						}
-						if(key==KEY2_PRES||key==KEY0_PRES)//下一曲/上一曲
-						{
-							res=key;
-							break; 
-						}
+
 						wav_get_curtime(audiodev.file,&wavctrl);//得到总时间和当前播放的时间 
-						audio_msg_show(wavctrl.totsec,wavctrl.cursec,wavctrl.bitrate);
+						time = wavctrl.cursec*100/wavctrl.totsec;
+            printf("j0.val=%d",time);
+            delay_ms(1);
+            end_send();
 						t++;
 						if(t==20)
 						{
 							t=0;
- 							LED0=!LED0;
+ 							TIM_Cmd(TIM5,DISABLE ); 	//关闭定时器5	
+              TIM_Cmd(TIM3,DISABLE ); 	//关闭定时器3
+              fre = 10*TIM5_COUNTER/(TIM3_COUNTER+TIM3_CUR/1000);
+              //printf("%d\r\n",fre);
+              TIM5_COUNTER=0;
+              TIM3_COUNTER=0;
+              TIM_SetCounter(TIM3,0);
+              TIM_Cmd(TIM5,ENABLE ); 	//使能定时器5	
+              TIM_Cmd(TIM3,ENABLE ); 	//使能定时器5	
+              if((fre>1850&&fre<1900)&&(sta!=1))        //2KHZ频段
+              {
+                sta=1;
+                res = 1;
+                printf("page page1");
+                delay_ms(1);
+                end_send();
+                break;    
+              }
+              else if((fre>1950&&fre<2000)&&(sta!=3))   //2.1KHZ频段
+              {
+                sta=3;
+                res = 1;
+                printf("page page2");
+                delay_ms(1);
+                end_send();
+                break;
+              }
+               else if((fre>2050&&fre<2090)&&(sta!=0))   //2.2KHZ频段
+              {
+                sta=0;
+                res = 1;
+                printf("page page3");
+                delay_ms(1);
+                end_send();
+                break;
+              }
+               else if((fre>2150&fre<2180)&&(sta!=2))   //2.3KHZ频段
+              {
+                sta=2; 
+                res = 1;
+                printf("page page4");
+                delay_ms(1);
+                end_send();
+                break;
+              }
+               else if((fre>2210&&fre<2300)&&(sta!=5))   //2.4KHZ频段
+              {
+                sta=5;
+                res = 1;
+                printf("page page5");
+                end_send();
+                break;
+              }
+              
+              else if((fre>3240&&fre<3300)&&(flag!=1))   //3.5KHZ频段
+              {
+                flag=1;
+               WM8978_HPvol_Set(20,20);	//耳机音量设置
+              }
+              else if(((fre>3330&&fre<3400))&&(flag!=2))   //3.6KHZ频段
+              {
+               flag=2; 
+               WM8978_HPvol_Set(40,40);	//耳机音量设置
+              }
+              else if(((fre>3420&&fre<3500))&&(flag!=3))   //3.7KHZ频段
+              {
+               flag=3; 
+               WM8978_HPvol_Set(60,60);	//耳机音量设置
+              }
+              
+             
+              
 						}
 						if((audiodev.status&0X01)==0)delay_ms(10);
 						else break;

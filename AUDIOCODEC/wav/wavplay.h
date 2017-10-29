@@ -20,7 +20,8 @@
 
 
 #define WAV_I2S_TX_DMA_BUFSIZE    8192		//定义WAV TX DMA 数组大小(播放192Kbps@24bit的时候,需要设置8192大才不会卡)
- 
+
+extern u8 sta;
 //RIFF块
 typedef __packed struct
 {
