@@ -3,7 +3,7 @@
 <title>Static Call Graph - [..\OBJ\AudioPlayer.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image ..\OBJ\AudioPlayer.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060183: Last Updated: Mon Oct 30 01:22:30 2017
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060183: Last Updated: Mon Oct 30 22:03:38 2017
 <BR><P>
 <H3>Maximum Stack Usage =        744 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -3460,15 +3460,11 @@ Global Symbols
 <P><STRONG><a name="[1c0]"></a>wav_i2s_dma_tx_callback</STRONG> (Thumb, 96 bytes, Stack size 0 bytes, wavplay.o(.text))
 <BR>[Address Reference Count : 1]<UL><LI> wavplay.o(.text)
 </UL>
-<P><STRONG><a name="[1be]"></a>wav_get_curtime</STRONG> (Thumb, 74 bytes, Stack size 40 bytes, wavplay.o(.text))
-<BR><BR>[Stack]<UL><LI>Max Depth = 48<LI>Call Chain = wav_get_curtime &rArr; __aeabi_ldivmod
-</UL>
-<BR>[Calls]<UL><LI><a href="#[171]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_ldivmod
-</UL>
-<BR>[Called By]<UL><LI><a href="#[1bf]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;wav_play_song
+<P><STRONG><a name="[1be]"></a>wav_get_curtime</STRONG> (Thumb, 74 bytes, Stack size 40 bytes, wavplay.o(.text), UNUSED)
+<BR><BR>[Calls]<UL><LI><a href="#[171]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_ldivmod
 </UL>
 
-<P><STRONG><a name="[1bf]"></a>wav_play_song</STRONG> (Thumb, 1026 bytes, Stack size 32 bytes, wavplay.o(.text))
+<P><STRONG><a name="[1bf]"></a>wav_play_song</STRONG> (Thumb, 1188 bytes, Stack size 32 bytes, wavplay.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 640 + Unknown Stack Size
 <LI>Call Chain = wav_play_song &rArr; wav_decode_init &rArr; f_open &rArr; dir_register &rArr; dir_find &rArr; dir_next &rArr; create_chain &rArr; put_fat &rArr; move_window &rArr; sync_window &rArr; disk_write &rArr; SD_WriteDisk &rArr; SD_WriteBlock &rArr; SD_Init &rArr; SD_EnableWideBusOperation &rArr; SDEnWideBus &rArr; FindSCR &rArr; CmdResp1Error
 </UL>
@@ -3486,7 +3482,6 @@ Global Symbols
 <LI><a href="#[9a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
 <LI><a href="#[1c1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;audio_stop
 <LI><a href="#[1c2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;audio_start
-<LI><a href="#[1be]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;wav_get_curtime
 <LI><a href="#[1bd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;wav_buffill
 <LI><a href="#[1bc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;wav_decode_init
 <LI><a href="#[19f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;f_lseek

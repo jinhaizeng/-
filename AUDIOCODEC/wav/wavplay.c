@@ -223,11 +223,11 @@ u8 wav_play_song(u8* fname)
 					while(1)
 					{
 
-						wav_get_curtime(audiodev.file,&wavctrl);//得到总时间和当前播放的时间 
-						time = wavctrl.cursec*100/wavctrl.totsec;
-            printf("j0.val=%d",time);
-            delay_ms(1);
-            end_send();
+//						wav_get_curtime(audiodev.file,&wavctrl);//得到总时间和当前播放的时间 
+//						time = wavctrl.cursec*100/wavctrl.totsec;
+//            printf("j0.val=%d",time);
+//            delay_ms(1);
+//            end_send();
 						t++;
 						if(t==20)
 						{
@@ -235,7 +235,7 @@ u8 wav_play_song(u8* fname)
  							TIM_Cmd(TIM5,DISABLE ); 	//关闭定时器5	
               TIM_Cmd(TIM3,DISABLE ); 	//关闭定时器3
               fre = 10*TIM5_COUNTER/(TIM3_COUNTER+TIM3_CUR/1000);
-              //printf("%d\r\n",fre);
+              printf("%d\r\n",fre);
               TIM5_COUNTER=0;
               TIM3_COUNTER=0;
               TIM_SetCounter(TIM3,0);
@@ -284,6 +284,22 @@ u8 wav_play_song(u8* fname)
                 printf("page page5");
                 end_send();
                 break;
+              }
+              
+              else if(((fre>4800&&fre<4850)||(fre>2750&&fre<2820)||(fre>1380&&fre<1450))&&(flag!=4))   //3.0KHZ频段
+              {
+                flag=4;
+               I2S2_SampleRate_Set(wavctrl.samplerate/2);
+              }
+              else if(((fre>4950&&fre<5000)||(fre>2850&&fre<2920)||(fre>1430&&fre<1480))&&(flag!=5))   //3.1KHZ频段
+              {
+               flag=5; 
+               I2S2_SampleRate_Set(wavctrl.samplerate);
+              }
+              else if(((fre>5100&&fre<5150)||(fre>2950&&fre<3000)||(fre>1490&&fre<1550))&&(flag!=6))   //3.2KHZ频段
+              {
+               flag=6; 
+               I2S2_SampleRate_Set(wavctrl.samplerate*2);
               }
               
               else if((fre>3240&&fre<3300)&&(flag!=1))   //3.5KHZ频段
